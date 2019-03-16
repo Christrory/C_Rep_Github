@@ -1,0 +1,75 @@
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+const int inf = (1LL << 31) - 1;
+
+struct Node {
+    int left;
+    int right;
+    int rangeSate;
+    Node *leftSon;
+    Node *rightSon;
+
+    Node(int l, int r) {
+        left = l;
+        right = r;
+        if (l == r) {
+            leftSon = NULL;
+            rightSon = NULL;
+            rangeSate = inf;
+        }
+        else {
+            int mid = (l + r) / 2;
+            leftSon = new Node(l, mid);
+            rightSon = new Node(mid + 1, r);
+            rangeSate = min(leftSon->rangeSate, rightSon->rangeMate);
+        }
+    }
+}
+
+void update(int p, int v) {
+    if (p <= mid) 
+        rangeSate = v;
+    else {
+        int mid = (left + right) / 2;
+        if (p <= mid) 
+            leftSon->update(p, v);
+        else
+            rightSon->update(p, v);
+        rangeSate = min(leftSon->rangeSate, right->rangeSate);
+    }
+}
+
+int find(int l, int r) {
+    if (l == left && right == r)
+        return rangeSate;
+    int mid = (left + right) / 2;
+    if (r <= mid) 
+        return leftSon->find(l, r);
+    else if (l > mid) 
+        return rightSon->find(l, r);
+    else {
+        return min(
+            leftSon->find(l, mid),
+            rightSon->find(mid + 1, r)
+        );
+    }
+}
+
+int n, q, arr[100000];
+
+int main() {
+    cin >> n >> q;
+    Node *root = new Node(0, n - 1);
+    for (int i = 0; i < q; ++i) {
+        int k, x, y;
+        cin >> k >> x >> y;
+        if (k == 0)
+            root->update(x, y);
+        else 
+            cout << root->find(x, y) << endl;
+    }
+    return 0;
+}
