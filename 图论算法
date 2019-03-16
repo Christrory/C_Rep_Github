@@ -1,0 +1,389 @@
+//图论
+
+///图的存储
+const int MAXN = 1e9 + 7;
+//邻接矩阵
+int graph[MANX + 1][MAXN + 1];
+
+void addEdge(int u, int v, int w) {
+    graph[u][v] = w;
+}
+
+//邻接表coding
+#include <cstdio>
+#include <vector>
+
+struct Node {
+    std::vector<struct Edge> edges;
+} nodes[MAXN + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void addEdge(int u, int v, int w) {
+    Edge e;
+    e.from = &nodes[u], e.to = &n, e.w = w;
+    nodes[u].edges.push_back(e);   //加边;
+}
+
+
+///图的遍历
+
+//DFS
+#include <cstdio>
+#include <vector>
+
+struct Node {
+    std::vector<struct Edge> edges;
+    bool visited;
+} nodes[Maxn + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void dfs(Node *v) {
+    v->visited = true;
+    for (int i = 0; i < (int)v->edges.size(); i++) {
+        Edge *e = &v->edges[i];
+        if (!e->to->visited) dfs(e->to);
+    }
+}
+
+//BFS
+#include <cstdio>
+#include <vector>
+
+struct Node {
+    std::vector<struct Edge> edges;
+    bool visited;
+} nodes[Maxn + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void bfs(Node *start) {
+    std::queue<Node *> q;
+    q.push(start);
+    start->visited = true;
+
+    while (!q.empty) {
+        Node *v = q.front();
+        q.pop();
+        
+        for (int i = 0; i < (int)v->edges.size(); i++){
+            Edge *e = &v->edges[i];
+            if (!e->to->visited) {
+                e->to->visited = true;
+                q.push(e->to);
+            }
+        }
+    }
+}
+
+
+///拓扑排序
+/*
+拓扑序：
+1.每个节点在序列中出现且只出现一次;
+2.如果序列中 u 出现在 v 前面,说明在图上以 v 为起点无法到达 u;
+意义:处理任务执行的顺序;
+*/
+/*
+拓扑排序
+定义:求拓扑序的过程(对于有向无环图);
+过程:
+1.维护一个队列，先将所有入度为零的点入队;
+2.每次一个点出队后，将它指向的点入度减一(相当于删除这个点);
+3.如果一个点入度被减到零，则将它入队;
+4.节点的出对顺序就是拓扑序;
+*/ 
+
+//代码实现
+#include <cstdio>
+#include <vector>
+#include <queue>
+
+struct Node {
+    std::vector<struct Edge> edges;
+    bool visited;
+    int inDegree;
+} nodes[Maxn + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void topoSort() {
+    std::queue<Node *> q;
+
+    for (int i = 1; i <= n; i++){
+        if (!nodes[i].inDegree) q.push(&nodes[i]);
+    }
+
+    int k = 0;
+    while (!q.empty()) {
+        Node *v = q.front();
+        q.pop();
+
+        topo[++k] = v;
+
+        for (int i = 0; i < (int)v->edges.size(); i++) {
+            Edge *e = &v->edges[i];
+            if (!--e->to->inDegree) q.push(e->to);
+        }
+    }
+}
+
+
+///最短路
+
+//贝尔曼—福特算法(Bellman-Ford)
+/*
+用途:用于求解单源最短路问题，即求一个点到图上其他点的最短路;
+过程:
+1.对每个点 u 设置一个变量 dist(u), 表示它离起点 s 的最短距离，令 dist(s) = 0;
+2.枚举每条边 u --> v, 用从 u 经过这条边到v 的距离更新 v;
+3.dist(v) = min(dist(v), dist(u) + cost(u-->v));
+4.将上述过程重复 n 次;
+缺点:时间复杂度为O(nm), 极浪费时间;
+*/
+
+//最短路径快速算法(SPFA)
+/*
+用途:用于求解单源最短路问题，即求一个点到图上其他点的最短路;
+过程:
+1.对于每个点 u 设置一个变量dist(u), 表示它离起点 s 的最短路径，令 dist(s) = 0;
+2.维护一个队列，先将起点入队;
+3.每次从队列中取出一个点，用它去更新所有相邻的点;
+4.dist(v) = min(dist(v), dist(u) + dist(u-->v));
+优缺点:时间复杂度上界为O(nm)； 对于随机数据, 此算法效率非常高：
+*/
+//算法实现
+#include <cstdio>
+#include <vector>
+#include <queue>
+
+struct Node {
+    std::vector<struct Edge> edges;
+    bool visited,inQueue;
+    int inDegree,dist;
+} nodes[Maxn + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void spfa(int start) {
+    for (int i = 1; i <= n; i++) nodes[i].dist = INT_MAX;
+
+    std::queue<Node *> q;
+
+    q.push(&nodes[start]);
+    nodes[start].dist = 0;
+    nodes[start].inQueue = true;
+    
+    while (!q.empty()) {
+        Node *v = q.front();
+        q.pop();
+
+        v->inQueue = false;
+
+        for (int i = 0; i < (int)v->edges.size(); i++) {
+            Edge *e = &v->edges[i];
+            if (e->to->dist > v->dist + e->w) {
+                e->to->dist = v->dist + e->w;
+                if (!e->to->inQueue) e->to->inQueue = true, q.push(e->to);
+            }
+        }
+    }
+}
+
+//迪杰斯特拉算法 (Dijkstra)
+/*
+用途:用于求解单源最短路问题，即求一个点到图上其他点的最短路;
+算法过程:
+1.将点分为两类, 一类是最短路已确定的点, 另一类是最短路未确定的点;
+2.对每个点 u 设置一个变量 dist(u), 表示它离起点的最短距离;
+3.首先将起点 s 标记为最短路径已确定的点, 并且 dist(s) = 0;
+4.每次从所有最短路未确定的点中取出离起点最近的点, 将它标记为最短路已确定, 用它去更新与它相邻的所有的点；
+5.dist(v) = min(dist(v),dist(v) + cost(u-->v));
+6.时间复杂度为O(n*n);
+7.使用邻接表存图，用堆来优化寻找最近点的过程，时间复杂度将至O(m log n);
+*/
+//算法实现
+#include <cstdio>
+#include <vector>
+#include <queue>
+
+struct Node {
+    std::vector<struct Edge> edges;
+    bool visited,inQueue;
+    int inDegree,dist;
+} nodes[Maxn + 1];
+
+struct Edge {
+    Node *from, *to;
+    int w;
+};
+
+void dijkstra(int start) {
+    for (int i = 1; i <= n; i++) nodes[i].dist = INT_MAX;
+
+    std::priority_queue< std::pair<int, Node *> > q;
+
+    q.push(std::make_pair(0, &nodes[start]));
+    nodes[start].dist = 0;
+
+    while (!Q.empty) {
+        std::pair<int, Node *> p = q.top();
+        q.pop();
+
+        if (-p.first != p.second->dist) continue;
+        Node *v = p.second;
+
+        for (int i = 0; i < (int)v->edges.size(); i++) {
+            Edge *e = &v->edges[i];
+            if (e->to->dist > v->dist + e->w) {
+                e->to->dist = v->dist + e->w;
+                q.push(std::make_pair(-e->to->dist, e->to));
+            }
+        }
+    }
+}
+
+//弗洛伊德算法 (Floyd)
+/*
+用途:用于求解多源最短路问题，即图上任意两点之间的最短路;
+*/
+//P.S. 需要用邻接矩阵存图;
+//代码实现
+void floyd() {
+    for (int k = i; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (g[i][j] != INF && g[k][j] != INF) {
+                    g[i][j] = std::min(g[i][j], g[i][j] + g[k][j]);
+                }
+            } 
+        }
+    }
+}
+//时间复杂度为O(n * n * n);
+
+//小结
+/*
+1.对于没有负边权的图，首选Dijkstra;
+2.对于有负边权的图，一般采用SPFA;
+3.SAFA的时间复杂度没有保证，而Dijkstra的时间复杂度有保证;
+4.Floyd算法的常数较小，实现时要注意中转站k在第一层循环中枚举;
+*/
+
+
+///最小生成树
+//克鲁斯卡尔算法 (Kruskal)
+/*
+过程:
+1.将所有的边按权值排序;
+2.按照边权从小到大枚举每条边u <--> v;
+  (1) 如果u与v已联通, 则忽略这条边;
+  (2) 如果u与v未相连, 则将它加入最小生成树中;
+3.直到加入了n - 1条边为止;
+4.在加边的过程中, 用并差集维护图的连通性;
+5.使用一般的排序算法, 总时间复杂度为O(m log m);
+*/
+void init(int n) {
+    for (int i = 1; i <= n; i++) f[i] = i;
+}
+
+int find(int x) {
+    return x == f[x] ? x : f[x] = find(f[x]);
+}
+
+void merge(int x, int y) {
+    f[find(x)] = find(y);
+}
+
+struct UEdge {
+    int u, v, w;
+
+    bool operator < (const UEdge &other) const {
+        return w < other.w;
+    }
+} edges[MAXN + 1];
+
+int kruskal() {
+    init(n);
+    std::sort(edges + 1; edges + m + 1);
+    int sum = 0, cnt = 0;
+    for(int i = 1; i <= m; i++)
+    {
+        if (find(edges[i].u) != find(edges[i].v)) {
+            sum += edges[i].w;
+            merge(edges[i].u, edges[i].v);
+            if (++cnt == n - 1) return sum;
+        }
+    }
+    return -1; //图不连通;
+}
+
+
+///最近共同祖先
+
+//倍增法
+/*
+过程:
+1.求u与v的最近公共祖先;
+2.预处理出每个节点的父节点;
+3.
+
+
+
+*/
+//代码实现
+void dfs(Node *v) {      //先用一次DFS预处理一些信息;
+    static int timeStamp = 0;
+
+    v->dfn = ++timeStamp;
+    for (int i = 0; i < (int)v->edges.size(); i++) {
+        Edge *e = &v->edges[i];
+        if (!e->to->dfn) {
+            f[e->to - node][0] = v - nodes;
+            dfs(e->to);
+        }
+    }
+    v->dfnOut = ++timeStamp;
+}
+
+void binaryLift(int root) {    //求出 logn 作为 j 的枚举范围, 预处理倍增数组f;
+    f[root][0] = root;
+
+    while ((1 << (logn + 1)) <= n) logn++;
+    for (int j = 1; j <= logn; j++) {
+        for (int i = 1; i <= n; i++) {
+            f[i][j] = f[f[i][j - 1]][j - 1];
+        }
+    }
+}
+
+bool isAncestor(int ancestor, int child) {    //需要特判u是v的祖先的情况;
+    return nodes[ancestor].dfn < nodes[child].dfn && nodes[ancestor].dfnOut > nodes[child].dfnOut;
+}
+
+int lca(int u, int v) {
+    if (u == v) return u;
+    if (isAncestor(u, v)) return u;
+    if (isAncestor(v, u)) return v;
+    for (int j = logn; j >= 0; j--) {
+        if (!isAncestor(f[u][v],v)) u = f[u][j];
+    }
+    return f[u][0];
+}
+
