@@ -1,0 +1,47 @@
+//标准模板库(STL) learning_notes
+//最大最小值
+#include <algorithm>
+Iterator std::max_element(begin, end);
+Iterator std::min_element(begin, end);
+
+int a[] = {3, 6, 2, 9};
+printf("%d", *std::min_element(a, a + 4));
+
+//填充
+#include <algorithm>
+void std::fill(bigen, end, value);//填充value, 时间复杂度为O(n);
+
+//随机化
+#include <algorithm>
+void std::random_shuffle(begin, end);
+
+//排序
+#include <algorithm>
+void std::sort(begin, end[,compare]);
+void std::stable_sort(begin, end[,compare]);
+//时间复杂度为O(nlogn);
+//compare函数返回值为真, a 在 b 前面;
+int a[MAXN + 1], n;
+bool compare(int a, int b) {
+    return a > b;// or a < b;
+}
+std::sort(a, a + n, compare);//循环变量从0开始存数;
+
+//查找
+#include <algorithm>
+Iterator std::lower_bound(begin, end,value);
+Iterator std::upper_bound(begin, end, value);
+//在一个以升序排好序的区间中某个值的插入位置;
+//时间复杂度为O(logn);
+
+//去重
+#include <algorithm>
+Iterator std::unique(begin, end);
+//对一个以升序排好序的区间去重, 将多余的成员移除, 返回去重后的区间的 end;
+//时间复杂度为 o(n);
+
+//全排列
+#include <algorithm>
+bool std::next_permutation(begin, end[, compare]);
+//将给定的区间变成它们的下一个排列, 返回true; 若没有下一个排列, 则返回false;
+//"第一个排列" 为顺序排列, "最后一个排列" 为逆序排序;
